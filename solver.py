@@ -20,6 +20,7 @@ array = np.array([[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
 
 
 def identify_num(board):
+    # finds the coordinates of all the nums
     num = []
     for i in range(len(board)):
         for j in range(len(board[i])):
@@ -29,11 +30,30 @@ def identify_num(board):
 
 numbers = identify_num(array)
 
+
 def identify_domains(board,numbers):
     domains = {}
+    def check_surrounding(board,x,y):
+        count = 0
+        rows = len(board)
+        cols = len(board[0])
+        for diffx in [-1,0,1]:
+            for diffy in [-1,0,1]:
+                if diffx == 0 and diffy == 0:
+                    continue
+                newx, newy = x+diffx, y+diffy
+                if 0 <= newx < rows and 0 <= newy < cols and board[newx][newy] == -1:
+                    count += 1
+        return count
+    for i in range(len(numbers)):
+        domains.update
+
+        
+
     
 
 def visualise_board(board):
+    # for testing only, will be altered later when GUI introduced
     for row in board:
         for cell in row:
             if cell == -1:
