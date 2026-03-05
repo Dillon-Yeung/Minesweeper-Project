@@ -1,0 +1,8 @@
+1.0.0
+    - Created visualise_board function for easier visualisation
+    - Created identify_num function to find number coordinates
+1.0.1
+    - Created functionality for identify_domains function
+1.0.2
+    - Corrected identify_domains function to store using coordinates key value 
+    - Updated identify_domains function to include the value in the output
