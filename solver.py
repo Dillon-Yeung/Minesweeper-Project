@@ -25,11 +25,8 @@ def identify_num(board):
     for i in range(len(board)):
         for j in range(len(board[i])):
             if board[i][j] > 0:
-                num.append((i, j))
+                num.append((int(board[i][j]),i, j))
     return num
-
-numbers = identify_num(array)
-
 
 def identify_domains(board,numbers):
     domains = {}
@@ -46,7 +43,8 @@ def identify_domains(board,numbers):
                     count += 1
         return count
     for i in range(len(numbers)):
-        domains.update
+        domains[(numbers[i][1], numbers[i][2])] = (int(board[numbers[i][1]][numbers[i][2]]),check_surrounding(board, numbers[i][1], numbers[i][2]))
+    return domains
 
         
 
@@ -77,3 +75,4 @@ def visualise_board(board):
 
 visualise_board(array)
 
+print(identify_domains(array,identify_num(array)))
