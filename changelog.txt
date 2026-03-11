@@ -6,3 +6,7 @@
 1.0.2
     - Corrected identify_domains function to store using coordinates key value 
     - Updated identify_domains function to include the value in the output
+1.0.3
+    - Updated identify_domains function to return as array
+    - Created mine_location function to flag domain
+    - Created guaranteed_mines to run mine_location on domain = value cases

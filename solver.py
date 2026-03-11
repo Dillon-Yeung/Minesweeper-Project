@@ -18,6 +18,7 @@ array = np.array([[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
          [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
          [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]])
 
+v_array = np.copy(array)
 
 def identify_num(board):
     # finds the coordinates of all the nums
@@ -29,7 +30,7 @@ def identify_num(board):
     return num
 
 def identify_domains(board,numbers):
-    domains = {}
+    domains = []
     def check_surrounding(board,x,y):
         count = 0
         rows = len(board)
@@ -43,12 +44,21 @@ def identify_domains(board,numbers):
                     count += 1
         return count
     for i in range(len(numbers)):
-        domains[(numbers[i][1], numbers[i][2])] = (int(board[numbers[i][1]][numbers[i][2]]),check_surrounding(board, numbers[i][1], numbers[i][2]))
+        domains.append([(numbers[i][1],numbers[i][2]),(int(board[numbers[i][1]][numbers[i][2]]),check_surrounding(board,numbers[i][1],numbers[i][2]))])
     return domains
 
-        
-
-    
+def mine_location(board,coordinates):
+    for diffx in [-1,0,1]:
+        for diffy in [-1,0,1]:
+            newx, newy = coordinates[0]+diffx, coordinates[1]+diffy
+            if 0<= newx < len(board) and 0 <= newy < len(board[0]) and board[newx][newy] == -1:
+                board[newx][newy] = 10
+def guaranteed_mines(board,domain):
+    print(domain)
+    for i in range(len(domain)):
+        if domain[i][1][0] == domain[i][1][1]:
+            print("Mine")
+            mine_location(board,domain[i][0])
 
 def visualise_board(board):
     # for testing only, will be altered later when GUI introduced
@@ -70,9 +80,13 @@ def visualise_board(board):
                 print(colorama.Back.WHITE + colorama.Fore.MAGENTA + "5", end=" ")
             elif cell == 6:
                 print(colorama.Back.WHITE + colorama.Fore.YELLOW + "6", end=" ")
+            elif cell == 10:
+                print(colorama.Back.WHITE + colorama.Fore.RED + "M", end = " ")
         print(colorama.Style.RESET_ALL, end="\n")
 
 
 visualise_board(array)
 
-print(identify_domains(array,identify_num(array)))
+guaranteed_mines(array,identify_domains(array,identify_num(array)))
+
+visualise_board(array)
