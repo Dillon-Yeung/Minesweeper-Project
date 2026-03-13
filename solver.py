@@ -25,11 +25,11 @@ def identify_num(board):
     num = []
     for i in range(len(board)):
         for j in range(len(board[i])):
-            if board[i][j] > 0:
+            if board[i][j] > 0 and board[i][j] < 9:
                 num.append((int(board[i][j]),i, j))
     return num
 
-def identify_domains(board,numbers):
+def identify_domains(board,vboard,numbers):
     domains = []
     def check_surrounding(board,x,y):
         count = 0
@@ -43,22 +43,52 @@ def identify_domains(board,numbers):
                 if 0 <= newx < rows and 0 <= newy < cols and board[newx][newy] == -1:
                     count += 1
         return count
+    def mine_count(board,vboard,x,y):
+        count = vboard[x][y]
+        for diffx in [-1, 0, 1]:
+            for diffy in [-1, 0, 1]:
+                if diffx == 0 and diffy == 0:
+                    continue
+                newx, newy = x + diffx, y + diffy
+                if 0 <= newx < len(board) and 0 <= newy < len(board[0]) and board[newx][newy] == 10:
+                    count -= 1
+        return count
     for i in range(len(numbers)):
-        domains.append([(numbers[i][1],numbers[i][2]),(int(board[numbers[i][1]][numbers[i][2]]),check_surrounding(board,numbers[i][1],numbers[i][2]))])
+        x, y = numbers[i][1], numbers[i][2]
+        adj_count = int(mine_count(board, vboard, x, y))
+        uncovered = check_surrounding(board, x, y)
+        domains.append([(x, y), (adj_count, uncovered)])
     return domains
 
 def mine_location(board,coordinates):
+    change = False
     for diffx in [-1,0,1]:
         for diffy in [-1,0,1]:
             newx, newy = coordinates[0]+diffx, coordinates[1]+diffy
             if 0<= newx < len(board) and 0 <= newy < len(board[0]) and board[newx][newy] == -1:
                 board[newx][newy] = 10
-def guaranteed_mines(board,domain):
+                change = True
+    return change
+def safe_location(board,coordinates):
+    change = False
+    for diffx in [-1,0,1]:
+        for diffy in [-1,0,1]:
+            newx, newy = coordinates[0]+diffx, coordinates[1]+diffy
+            if 0<= newx < len(board) and 0 <= newy < len(board[0]) and board[newx][newy] == -1:
+                board[newx][newy] = 9
+                change = True
+    return change
+def guaranteed_spaces(board,domain):
     print(domain)
+    changes = False
     for i in range(len(domain)):
         if domain[i][1][0] == domain[i][1][1]:
             print("Mine")
-            mine_location(board,domain[i][0])
+            changes = mine_location(board,domain[i][0])
+        elif domain[i][1][0] == 0:
+            print("Safe")
+            changes = safe_location(board,domain[i][0])
+    return changes
 
 def visualise_board(board):
     # for testing only, will be altered later when GUI introduced
@@ -80,13 +110,17 @@ def visualise_board(board):
                 print(colorama.Back.WHITE + colorama.Fore.MAGENTA + "5", end=" ")
             elif cell == 6:
                 print(colorama.Back.WHITE + colorama.Fore.YELLOW + "6", end=" ")
+            elif cell == 9:
+                print(colorama.Back.WHITE + colorama.Fore.BLACK + "S", end = " ")
             elif cell == 10:
                 print(colorama.Back.WHITE + colorama.Fore.RED + "M", end = " ")
         print(colorama.Style.RESET_ALL, end="\n")
 
-
-visualise_board(array)
-
-guaranteed_mines(array,identify_domains(array,identify_num(array)))
-
-visualise_board(array)
+def one_step_solve():
+    changed = True
+    while changed is True:
+        domains = identify_domains(array, v_array, identify_num(array))
+        changed = guaranteed_spaces(array,domains)
+        visualise_board(array)
+    
+    print("")
