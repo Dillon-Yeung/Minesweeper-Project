@@ -1,5 +1,6 @@
 import numpy as np
 import colorama 
+import collections
 #array = np.zeros((16,16),dtype=int)
 array = np.array([[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
          [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
@@ -17,8 +18,6 @@ array = np.array([[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
          [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
          [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
          [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]])
-
-v_array = np.copy(array)
 
 def identify_num(board):
     # finds the coordinates of all the nums
@@ -79,15 +78,12 @@ def safe_location(board,coordinates):
                 change = True
     return change
 def guaranteed_spaces(board,domain):
-    print(domain)
     changes = False
     for i in range(len(domain)):
         if domain[i][1][0] == domain[i][1][1]:
-            print("Mine")
-            changes = mine_location(board,domain[i][0])
+            changes = changes or mine_location(board,domain[i][0])
         elif domain[i][1][0] == 0:
-            print("Safe")
-            changes = safe_location(board,domain[i][0])
+            changes = changes or safe_location(board,domain[i][0])
     return changes
 
 def visualise_board(board):
@@ -116,11 +112,15 @@ def visualise_board(board):
                 print(colorama.Back.WHITE + colorama.Fore.RED + "M", end = " ")
         print(colorama.Style.RESET_ALL, end="\n")
 
-def one_step_solve():
+def one_step_solve(board):
+    v_board = np.copy(board)
     changed = True
     while changed is True:
-        domains = identify_domains(array, v_array, identify_num(array))
-        changed = guaranteed_spaces(array,domains)
-        visualise_board(array)
-    
-    print("")
+        domains = identify_domains(board, v_board, identify_num(board))
+        changed = guaranteed_spaces(board,domains)
+    visualise_board(board)
+    print(f"{collections.Counter(board.flatten())[10] - collections.Counter(v_board.flatten())[10]} total mines identified")
+    print(f"{collections.Counter(board.flatten())[9] - collections.Counter(v_board.flatten())[9]} total safe spaces identified")
+    print(f"{collections.Counter(v_board.flatten())[-1] - collections.Counter(board.flatten())[-1]} total cells identified")
+    return board
+one_step_solve(array)

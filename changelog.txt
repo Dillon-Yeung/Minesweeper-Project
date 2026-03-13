@@ -14,3 +14,6 @@
     - Created safe_location function to identify safe squares
     - Created mine_count to update mine number values
     - Created one_step_solve function - WIP
+    - Updated visualise_board function to output safe squares
+1.0.5
+    - Finished one_step_solve function to output cells identified
