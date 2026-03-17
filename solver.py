@@ -1,6 +1,8 @@
 import numpy as np
 import colorama 
 import collections
+import math
+
 #array = np.zeros((16,16),dtype=int)
 array = np.array([[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
          [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
@@ -68,6 +70,7 @@ def mine_location(board,coordinates):
                 board[newx][newy] = 10
                 change = True
     return change
+
 def safe_location(board,coordinates):
     change = False
     for diffx in [-1,0,1]:
@@ -77,6 +80,7 @@ def safe_location(board,coordinates):
                 board[newx][newy] = 9
                 change = True
     return change
+
 def guaranteed_spaces(board,domain):
     changes = False
     for i in range(len(domain)):
@@ -123,4 +127,9 @@ def one_step_solve(board):
     print(f"{collections.Counter(board.flatten())[9] - collections.Counter(v_board.flatten())[9]} total safe spaces identified")
     print(f"{collections.Counter(v_board.flatten())[-1] - collections.Counter(board.flatten())[-1]} total cells identified")
     return board
-one_step_solve(array)
+
+
+#figure out how to identify for prob calc
+#figure out how to calc without taking too long
+
+

@@ -17,3 +17,6 @@
     - Updated visualise_board function to output safe squares
 1.0.5
     - Finished one_step_solve function to output cells identified
+1.1.0
+    - Opened prob.py to begin probabilities calculation
+    - Created square_size function in order to find the best approximate size for simulated squares
