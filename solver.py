@@ -33,6 +33,7 @@ def identify_num(board):
 def identify_domains(board,vboard,numbers):
     domains = []
     def check_surrounding(board,x,y):
+        #identifies domain size for each number
         count = 0
         rows = len(board)
         cols = len(board[0])
@@ -45,6 +46,7 @@ def identify_domains(board,vboard,numbers):
                     count += 1
         return count
     def mine_count(board,vboard,x,y):
+        #if mine is present decreases domain size
         count = vboard[x][y]
         for diffx in [-1, 0, 1]:
             for diffy in [-1, 0, 1]:
@@ -55,6 +57,7 @@ def identify_domains(board,vboard,numbers):
                     count -= 1
         return count
     for i in range(len(numbers)):
+        #iterates for all and groups results
         x, y = numbers[i][1], numbers[i][2]
         adj_count = int(mine_count(board, vboard, x, y))
         uncovered = check_surrounding(board, x, y)
@@ -62,6 +65,7 @@ def identify_domains(board,vboard,numbers):
     return domains
 
 def mine_location(board,coordinates):
+    #if number == domain size, identifies as mine
     change = False
     for diffx in [-1,0,1]:
         for diffy in [-1,0,1]:
@@ -72,6 +76,7 @@ def mine_location(board,coordinates):
     return change
 
 def safe_location(board,coordinates):
+    #if mine count == number and domain size != mine count, identifies rest as safe
     change = False
     for diffx in [-1,0,1]:
         for diffy in [-1,0,1]:
@@ -82,6 +87,7 @@ def safe_location(board,coordinates):
     return change
 
 def guaranteed_spaces(board,domain):
+    #identifies mines and safes
     changes = False
     for i in range(len(domain)):
         if domain[i][1][0] == domain[i][1][1]:
@@ -132,4 +138,6 @@ def one_step_solve(board):
 #figure out how to identify for prob calc
 #figure out how to calc without taking too long
 
-
+visualise_board(array)
+print("")
+one_step_solve(array)
