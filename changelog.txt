@@ -23,3 +23,9 @@
 1.1.0.1
     - Created scanner.py to begin image processing
     - Installed opencv-python-headless
+1.2.0
+    - Added identify_cells function to find images of cells - only works with .online version at the moment
+    - Added take_screen function to screenshot other tabs
+    - Added smallalgorithms.py to store other stuff
+    - Added within_10 function to filter out data within 10 of each other
+    - Added filter function to run within_10 on all data 
