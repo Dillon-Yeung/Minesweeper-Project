@@ -116,6 +116,10 @@ def visualise_board(board):
                 print(colorama.Back.WHITE + colorama.Fore.MAGENTA + "5", end=" ")
             elif cell == 6:
                 print(colorama.Back.WHITE + colorama.Fore.YELLOW + "6", end=" ")
+            elif cell == 7:
+                print(colorama.Back.WHITE + colorama.Fore.BLACK + "7", end=" ")
+            elif cell == 8:
+                print(colorama.Back.WHITE + colorama.Fore.BLACK + "8", end=" ")
             elif cell == 9:
                 print(colorama.Back.WHITE + colorama.Fore.BLACK + "S", end = " ")
             elif cell == 10:

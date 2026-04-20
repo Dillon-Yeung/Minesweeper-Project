@@ -29,3 +29,6 @@
     - Added smallalgorithms.py to store other stuff
     - Added within_10 function to filter out data within 10 of each other
     - Added filter function to run within_10 on all data 
+1.2.1
+    - Moved identify_cells to trainer.py
+    - Created train_knn function to train model per screenshot
