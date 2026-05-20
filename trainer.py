@@ -76,4 +76,4 @@ def train_knn():
     np.savez('.online.npz', training=data,labels=labels)
     return knn
 
-train_knn().
+train_knn()
