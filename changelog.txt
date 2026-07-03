@@ -58,3 +58,11 @@
             - vboard
             - rows
             - cols
+1.3.2
+    Updated data-training.py file
+        Made following functions into OOP format
+            - Updated train_knn to __train_knn
+            - Updated test
+        Added attributes
+            - __rawimg
+            - finalboard
