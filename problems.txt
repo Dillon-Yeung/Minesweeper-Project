@@ -1,0 +1,9 @@
+In file scanner_local.py there is a logic error between lines 16 and 21
+    The filter is repeatedly being iterated through, 
+    such that the filter out anything within_10 that already exists for a different number
+    This results in priority placed on the first items
+
+    A fallback on the threshold should be placed in case all items fail
+
+    The filter should be completed by the KNN model rather than the template matching for greater accuracy
+    Thus confidence should be returned to data-training.py

@@ -1,0 +1,4 @@
+1 - Split the large image into array of cells
+2 - Iterate match templates throughout array with threshold of 0.9(5), returning accuracy
+3 - Filter out all except highest accuracy
+4 - If return empty set, recurse with threshold 0.05 lower on relevant cells
