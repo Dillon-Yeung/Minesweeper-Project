@@ -66,3 +66,40 @@
         Added attributes
             - __rawimg
             - finalboard
+2.0.0
+    Updated screen.py file
+        Removed functions
+            - filter
+            - within_10
+        Added functions 
+            - deduplicate_points
+            - is_far_enough
+
+    Updated scanner_local.py file
+        Edited functions
+            - identify_cells
+        Added structure
+            - TEMPLATE_LABEL_MAP
+
+    Updated data-training.py file
+        Removed functions
+            - get_files_from
+            - load_img
+            - __train_knn
+            - test
+        Removed class
+            - img_board
+        Added functions
+            - load_templates
+            - scan_board
+            - _cluster_positions
+            - _extrapolate_positions
+            - _find_nearest_index
+            - 
+    Deleted folders
+        - auto
+
+    Deleted files
+        - smallalgorithms.py
+        - trainer.py
+    

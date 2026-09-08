@@ -1,39 +1,71 @@
 import cv2
 import numpy as np
 import os
-from screen import filter, within_10
+import logging
+from screen import deduplicate_points, is_far_enough
 
-def identify_cells(img,templates):
-    img_draw = img.copy()
+logger = logging.getLogger(__name__)
+
+TEMPLATE_LABEL_MAP = {
+    1: -1,   # covered
+    2: 0,    # empty
+    3: 1,    # one
+    4: 2,    # two
+    5: 3,    # three
+    6: 4,    # four
+    7: 5,    # five
+    8: 6,    # six
+    9: 7,    # seven
+    10: 8,   # eight
+}
+
+def identify_cells(img,templates, threshold = 0.9):
+    """Detects minesweeper cells via template matching
+    Returns cropped image and list of classified cells"""
     img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    auto_dir = os.path.join(os.path.dirname(__file__), 'auto')
-    if not os.path.exists(auto_dir):
-        os.makedirs(auto_dir)
-    for filename in os.listdir(auto_dir):
-        path = os.path.join(auto_dir, filename)
-        if os.path.isfile(path):
-            os.remove(path)
-    for template_index, template in enumerate(templates, start=0):
+
+    cell_matches = [] # stores x, y, index, confidence
+    match_results = [] # stores index, result_matrix
+
+    for template_index, template in enumerate(templates, start=1):
         w, h = template.shape[::-1]
-        res = cv2.matchTemplate(img_gray,template,cv2.TM_CCOEFF_NORMED)
-        threshold = 0.9
-        loc = np.where( res >= threshold)
-        filtered = list(filter(zip(*loc[::-1]),within_10))
-        counter = 0
-        for pt in filtered:
-            counter +=1
-            crop = img[(pt[1]):(pt[1]+h),(pt[0]):(pt[0]+w)]
-            filename = os.path.join(
-                auto_dir,
-                f"autoscreenshot_{template_index}_{counter}.png"
+        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
+        match_results.append((template_index,template,res))
+        loc = np.where(res>=threshold)
+        filtered = deduplicate_points(zip(*loc[::-1]))
+
+        logger.info(
+            "Template %d: %d matches found (after dedupe)",
+            template_index, len(filtered),
+        )
+
+        #Skip templates with more than 1000 deduped results
+        if len(filtered) > 1000:
+            logger.warning(
+                "Template %d: %d matches exceeds sanity cap (1000), "
+                "skipping for grid detection (still used via result matrix).",
+                template_index, len(filtered),
             )
-            cv2.imwrite(filename, crop)
-        cv2.imwrite('res.png',img_draw)
-    if filtered:
-        xs, ys = zip(*filtered)
-        return img[min(ys):max(ys), min(xs):max(xs)]
-    else:
-        return img
+            continue
 
+        for pt in filtered:
+            confidence = float(res[pt[1], pt[0]])
+            cell_matches.append((pt[0], pt[1], template_index, confidence))
 
+    if not cell_matches:
+        raise ValueError(
+            "No cells detected in the screenshot. "
+            "Check that the templates match the format. "
+        )
+    xs = [m[0] for m in cell_matches]
+    ys = [m[1] for m in cell_matches]
 
+    rep_w, rep_h = templates[0].shape[::-1]
+    cropped_board = img[min(ys):max(ys)+rep_h,min(xs):max(xs)+rep_w]
+
+    logger.info(
+        "Board detected: %d total cells, crop size %s",
+        len(cell_matches), cropped_board.shape[:2],
+    )
+    
+    return cropped_board, cell_matches, img_gray, match_results

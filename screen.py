@@ -1,15 +1,32 @@
-    import os
-    import cv2
-    import numpy as np
-    def filter(data, condition):
-        result = []
-        for element in data:
-            if all(condition(element, existing) for existing in result):
-                result.append(element)
-        return result
+def deduplicate_points(data, condition = None, min_distance = 10):
+    """Filter list, keeps points only far enough away from existing
+    Uses a spatial grid for O(n) instead of O(n^2) brute forcce
+    """
+    result = []
 
-    def within_10(d1,d2):
-        return abs(d1[0]-d2[0]) > 10 or abs(d1[1]-d2[1]) > 10
+    grid = {}
+    cell_size = min_distance+1
 
+    for element in data:
+        ex,ey = element[0],element[1]
+        gx,gy = ex//cell_size, ey//cell_size
+        close = False
 
+        for dx in range(-1,2):
+            if close:
+                break
+            for dy in range(-1,2):
+                key = (gx+dx,gy+dy)
+                if key in grid:
+                    for existing in grid[key]:
+                        if not (abs(ex-existing[0]) > min_distance or abs(ey-existing[1]) > min_distance):
+                            close = True
+                            break
+        if not close:
+            result.append(element)
+            grid.setdefault((gx,gy), []).append(element)
+    return result
 
+def is_far_enough(d1,d2,min_distance=10):
+    """Returns true if two points are more than min_distance apart """
+    return abs(d1[0]-d2[0]) > min_distance or abs(d1[1]-d2[1]) > min_distance

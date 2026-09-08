@@ -1,9 +1,6 @@
-import cv2
-import numpy as np
 import pyautogui
 import keyboard
 import os
-from smallalgorithms import *
 
 def take_screen():
     a = 0
