@@ -147,10 +147,6 @@ def _extrapolate_positions(detected, expected_count, cell_size):
 
     return positions
 
-def _find_nearest_index(positions, value):
-    distances = [abs(p-value) for p in positions]
-    return distances.index(min(distances))
-
 if __name__ == "__main__":
     import traceback as _tb
     _base = os.path.dirname(os.path.abspath(__file__))

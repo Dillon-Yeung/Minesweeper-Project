@@ -95,11 +95,19 @@
             - _cluster_positions
             - _extrapolate_positions
             - _find_nearest_index
-            - 
     Deleted folders
         - auto
 
     Deleted files
         - smallalgorithms.py
         - trainer.py
+    
+2.0.1
+    Updated screen.py file
+        Removed functions
+            - is_far_enough
+    
+    Updated data-training.py file
+        Removed functions
+            - _find_nearest_index
     

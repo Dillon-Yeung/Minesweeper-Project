@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import os
 import logging
-from screen import deduplicate_points, is_far_enough
+from screen import deduplicate_points
 
 logger = logging.getLogger(__name__)
 
