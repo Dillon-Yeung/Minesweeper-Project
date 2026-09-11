@@ -1,7 +1,7 @@
 import numpy as np
 import colorama 
 import collections
-import math
+from data_training import *
 
 #array = np.zeros((16,16),dtype=int)
 array = np.array([[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
@@ -147,7 +147,57 @@ class board():
 
 #figure out how to identify for prob calc
 
-board1 = board(array)
+if __name__ == "__main__":
+    _base = os.path.dirname(os.path.abspath(__file__))
+
+    try:
+        compare_dir = os.path.join(_base, 'compare')
+        screenshots_dir = os.path.join(_base, 'screenshots')
+        templates = load_templates(compare_dir)
+
+        test_img_small = cv2.imread(os.path.join(screenshots_dir, 'screenshot-23.png'))
+        if test_img_small is not None:
+            logger.info("=== Test: 2x2 board (screenshot-23) ===")
+            board_small = scan_board(test_img_small, templates)
+            print("2x2 Board:")
+            print(board_small)
+        else:
+            print("screenshot-23.png not found")
+
+        test_img_full = cv2.imread(os.path.join(screenshots_dir, 'screenshot-22.png'))
+        if test_img_full is not None:
+            logger.info("=== Test: 16x30 board (screenshot-22) ===")
+            board_full = scan_board(test_img_full, templates)
+            print("\n16x30 Board:")
+            print(board_full)
+        else:
+            print("screenshot-22.png not found")
+
+        test_img_med = cv2.imread(os.path.join(screenshots_dir, 'screenshot-4.png'))
+        if test_img_med is not None:
+            logger.info("=== Test: 16x16 board (screenshot-4) ===")
+            board_med = scan_board(test_img_med, templates)
+            print("16x16 Board:")
+            print(board_med)
+        else:
+            print("screenshot-4.png not found")
+        a = 0
+        while os.path.exists(f'{os.getcwd()}/screenshots/screenshot-{a}.png'):
+            a+=1
+        take_screen(a)
+        real_img = cv2.imread(os.path.join(screenshots_dir, f'screenshot-{a}.png'))
+        if real_img is not None:
+            logger.info("=== Not Test: board ===")
+            board_real = scan_board(real_img, templates)
+            print("Real Board:")
+            print(board_real)
+        else:
+            print("Screenshot not found")
+
+    except:
+        print("Unidentified error")
+
+board1 = board(board_real)
 board1.visualise_board()
 print("")
 board1.one_step_solve()

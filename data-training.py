@@ -2,7 +2,9 @@ import numpy as np
 import cv2
 import os
 import logging
+import time
 from scanner_local import identify_cells, TEMPLATE_LABEL_MAP, load_knn_model, classify_cell_knn
+from screenshotter import take_screen
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -187,43 +189,3 @@ def _extrapolate_positions(detected, expected_count, cell_size):
         positions.append(positions[-1] + step)
 
     return positions
-
-if __name__ == "__main__":
-    import traceback as _tb
-    _base = os.path.dirname(os.path.abspath(__file__))
-    _results_path = os.path.join(_base, 'board_results.txt')
-
-    try:
-        compare_dir = os.path.join(_base, 'compare')
-        screenshots_dir = os.path.join(_base, 'screenshots')
-        templates = load_templates(compare_dir)
-
-        test_img_small = cv2.imread(os.path.join(screenshots_dir, 'screenshot-23.png'))
-        if test_img_small is not None:
-            logger.info("=== Test: 2x2 board (screenshot-23) ===")
-            board_small = scan_board(test_img_small, templates)
-            print("2x2 Board:")
-            print(board_small)
-        else:
-            print("screenshot-23.png not found")
-
-        test_img_full = cv2.imread(os.path.join(screenshots_dir, 'screenshot-22.png'))
-        if test_img_full is not None:
-            logger.info("=== Test: 16x30 board (screenshot-22) ===")
-            board_full = scan_board(test_img_full, templates)
-            print("\n16x30 Board:")
-            print(board_full)
-        else:
-            print("screenshot-22.png not found")
-
-        test_img_med = cv2.imread(os.path.join(screenshots_dir, 'screenshot-4.png'))
-        if test_img_med is not None:
-            logger.info("=== Test: 16x16 board (screenshot-4) ===")
-            board_med = scan_board(test_img_med, templates)
-            print("16x16 Board:")
-            print(board_med)
-        else:
-            print("screenshot-4.png not found")
-
-    except:
-        print("Unidentified error")

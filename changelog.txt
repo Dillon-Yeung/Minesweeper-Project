@@ -131,3 +131,17 @@
     Updated screen.py
         Added functions
             - is_far_enough
+
+2.1.0
+    Updated data-training.py
+        Modified functions
+            - scan_board
+
+3.0.0
+    Updated data-training.py
+        Modified functions
+            - scan_board
+    Updated scanner.py to screenshotter.py
+        Modified functions
+            - take_screen
+    
