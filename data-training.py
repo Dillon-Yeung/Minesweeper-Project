@@ -30,7 +30,7 @@ def load_templates(compare_dir):
         templates.append(img)
     return tuple(templates)
 
-def scan_board(test_case, rows, cols, templates,knn_model_path=None,knn_max_distance=None):
+def scan_board(test_case,templates,rows=None, cols=None,knn_model_path=None,knn_max_distance=None):
     _, cell_matches, img_gray, _ = identify_cells(test_case,templates)
 
     if not cell_matches:
@@ -46,8 +46,15 @@ def scan_board(test_case, rows, cols, templates,knn_model_path=None,knn_max_dist
                 knn_model_path,
             )
             knn = None
-    
-    expected_cells = rows*cols
+
+    cell_h,cell_w = templates[0].shape
+
+    if rows is not None and cols is not None:
+        expected_cells = rows*cols
+    else:
+        img_h,img_w = img_gray.shape
+        expected_cells = max(1,round(img_h / cell_h)) * max(1, round(img_w / cell_w))
+
     from collections import Counter
     tmpl_counts = Counter(m[2] for m in cell_matches)
     max_for_grid = max(expected_cells *2,10)
@@ -63,10 +70,16 @@ def scan_board(test_case, rows, cols, templates,knn_model_path=None,knn_max_dist
     col_positions = _cluster_positions(all_xs)
     
 
-    cell_h,cell_w = templates[0].shape
+    
+    if rows is not None:
+        row_positions = _extrapolate_positions(row_positions, rows, cell_h)
+    else:
+        rows = len(row_positions)
 
-    row_positions = _extrapolate_positions(row_positions, rows, cell_h)
-    col_positions = _extrapolate_positions(col_positions, cols, cell_w)
+    if cols is not None:
+        col_positions = _extrapolate_positions(col_positions, cols, cell_w)
+    else:
+        cols = len(col_positions)
 
     logger.info(
         "Grid positions: %d rows x %d cols (from %d matches)",
@@ -175,10 +188,6 @@ def _extrapolate_positions(detected, expected_count, cell_size):
 
     return positions
 
-def _find_nearest_index(positions, value):
-    distances = [abs(p-value) for p in positions]
-    return distances.index(min(distances))
-
 if __name__ == "__main__":
     import traceback as _tb
     _base = os.path.dirname(os.path.abspath(__file__))
@@ -189,38 +198,32 @@ if __name__ == "__main__":
         screenshots_dir = os.path.join(_base, 'screenshots')
         templates = load_templates(compare_dir)
 
-        results = []
-
         test_img_small = cv2.imread(os.path.join(screenshots_dir, 'screenshot-23.png'))
         if test_img_small is not None:
             logger.info("=== Test: 2x2 board (screenshot-23) ===")
-            board_small = scan_board(test_img_small, 2, 2, templates)
-            results.append("2x2 Board:")
-            results.append(str(board_small))
+            board_small = scan_board(test_img_small, templates)
+            print("2x2 Board:")
+            print(board_small)
         else:
-            results.append("screenshot-23.png not found")
+            print("screenshot-23.png not found")
 
         test_img_full = cv2.imread(os.path.join(screenshots_dir, 'screenshot-22.png'))
         if test_img_full is not None:
             logger.info("=== Test: 16x30 board (screenshot-22) ===")
-            board_full = scan_board(test_img_full, 16, 30, templates)
-            results.append("\n16x30 Board:")
-            results.append(str(board_full))
+            board_full = scan_board(test_img_full, templates)
+            print("\n16x30 Board:")
+            print(board_full)
         else:
-            results.append("screenshot-22.png not found")
+            print("screenshot-22.png not found")
 
         test_img_med = cv2.imread(os.path.join(screenshots_dir, 'screenshot-4.png'))
         if test_img_med is not None:
             logger.info("=== Test: 16x16 board (screenshot-4) ===")
-            board_med = scan_board(test_img_med, 16, 16, templates)
-            results.append("16x16 Board:")
-            results.append(str(board_med))
+            board_med = scan_board(test_img_med, templates)
+            print("16x16 Board:")
+            print(board_med)
         else:
-            results.append("screenshot-4.png not found")
-        with open(_results_path, 'w') as f:
-            f.write('\n'.join(results))
+            print("screenshot-4.png not found")
 
-    except Exception:
-        with open(_results_path, 'w') as f:
-            f.write("ERROR:\n")
-            _tb.print_exc(file=f)
+    except:
+        print("Unidentified error")
