@@ -2,9 +2,7 @@ import numpy as np
 import cv2
 import os
 import logging
-import time
 from scanner_local import identify_cells, TEMPLATE_LABEL_MAP, load_knn_model, classify_cell_knn
-from screenshotter import take_screen
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

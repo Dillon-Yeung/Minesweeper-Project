@@ -1,7 +1,5 @@
 def deduplicate_points(data, condition = None, min_distance = 10):
-    """Filter list, keeps points only far enough away from existing
-    Uses a spatial grid for O(n) instead of O(n^2) brute forcce
-    """
+    #Filter list, keeps points only far enough away from existing
     result = []
 
     grid = {}
@@ -27,5 +25,3 @@ def deduplicate_points(data, condition = None, min_distance = 10):
             grid.setdefault((gx,gy), []).append(element)
     return result
 
-def is_far_enough(d1,d2,min_distance=10):
-    return abs(d1[0]-d2[0]) > min_distance or abs(d1[1]-d2[1]) > min_distance
