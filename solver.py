@@ -142,7 +142,7 @@ class board():
                 elif cell == 9:
                     print(colorama.Back.WHITE + colorama.Fore.BLACK + "S", end = " ")
                 elif cell == 10:
-                    print(colorama.Back.WHITE + colorama.Fore.RED + "M", end = " ")
+                    print(colorama.Back.WHITE + colorama.Fore.RED + "F", end = " ")
             print(colorama.Style.RESET_ALL, end="\n")
 
 #figure out how to identify for prob calc

@@ -23,6 +23,7 @@ def load_templates(compare_dir):
         ("6.png", "six"),
         ("7.png", "seven"),
         ("8.png", "eight"),
+        ("flag.png", "flag"),
     ]
     templates = []
     for filename, description in template_specs:

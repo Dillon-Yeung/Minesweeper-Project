@@ -145,4 +145,9 @@
         Modified functions
             - take_screen
     Updated solver.py
-        
+
+3.1.0
+    Updated data-training.py
+    Updated solver.py
+    Updated scanner_local.py
+    Uploaded flag.png to compare folder

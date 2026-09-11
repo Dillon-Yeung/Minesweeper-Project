@@ -25,6 +25,7 @@ TEMPLATE_LABEL_MAP = {
     8: 6,    # six
     9: 7,    # seven
     10: 8,   # eight
+    11: 10,  # flag 
 }
 
 def build_training_data(cell_matches, img_gray, templates):
