@@ -144,4 +144,5 @@
     Updated scanner.py to screenshotter.py
         Modified functions
             - take_screen
-    
+    Updated solver.py
+        
