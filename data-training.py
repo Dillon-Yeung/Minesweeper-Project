@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import os
 import logging
-from scanner_local import identify_cells, TEMPLATE_LABEL_MAP
+from scanner_local import identify_cells, TEMPLATE_LABEL_MAP, load_knn_model, classify_cell_knn
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -30,15 +30,25 @@ def load_templates(compare_dir):
         templates.append(img)
     return tuple(templates)
 
-def scan_board(test_case, rows, cols, templates):
+def scan_board(test_case, rows, cols, templates,knn_model_path=None,knn_max_distance=None):
     _, cell_matches, img_gray, _ = identify_cells(test_case,templates)
+
     if not cell_matches:
         raise ValueError("No cells detected")
 
+    knn = None
+    if knn_model_path is not None and os.path.exists(knn_model_path):
+        try:
+            knn = load_knn_model(knn_model_path)
+        except cv2.error:
+            logger.warning(
+                "Could not load KNN model at %s; using template matching only.",
+                knn_model_path,
+            )
+            knn = None
+    
     expected_cells = rows*cols
-
     from collections import Counter
-
     tmpl_counts = Counter(m[2] for m in cell_matches)
     max_for_grid = max(expected_cells *2,10)
     grid_matches = [m for m in cell_matches if tmpl_counts[m[2]] <= max_for_grid]
@@ -66,6 +76,8 @@ def scan_board(test_case, rows, cols, templates):
     max_tmpl_h = max(t.shape[0] for t in templates)
     max_tmpl_w = max(t.shape[1] for t in templates)
 
+    knn_h,knn_w = templates[0].shape
+
     board = np.full((rows,cols),-99, dtype=int)
 
     for row_idx in range(min(rows,len(row_positions))):
@@ -85,6 +97,22 @@ def scan_board(test_case, rows, cols, templates):
             if pad_h > 0 or pad_w > 0:
                 cell_region = np.pad(cell_region, ((0,pad_h),(0,pad_w)),mode='edge')
 
+            if knn is not None:
+                knn_patch = img_gray[
+                    pixel_y:pixel_y+knn_h,
+                    pixel_x:pixel_x+knn_w,
+                ]
+                pad_kh = knn_h - knn_patch.shape[0]
+                pad_kw = knn_w - knn_patch.shape[1]
+                if knn_patch.shape[0] > 0 and knn_patch.shape[1] > 0:
+                    if pad_kh > 0 or pad_kw > 0:
+                        knn_patch = np.pad(knn_patch, ((0, pad_kh), (0, pad_kw)), mode='edge')
+                    predicted_template_index = classify_cell_knn(knn, knn_patch, max_distance=knn_max_distance)
+                    if predicted_template_index is not None:
+                        board[row_idx, col_idx] = TEMPLATE_LABEL_MAP.get(predicted_template_index, predicted_template_index)
+                        continue
+
+            #In case knn fails, template matching is applied
             best_score = np.inf
             best_template_index = 1
 
@@ -146,6 +174,10 @@ def _extrapolate_positions(detected, expected_count, cell_size):
         positions.append(positions[-1] + step)
 
     return positions
+
+def _find_nearest_index(positions, value):
+    distances = [abs(p-value) for p in positions]
+    return distances.index(min(distances))
 
 if __name__ == "__main__":
     import traceback as _tb

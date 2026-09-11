@@ -110,4 +110,24 @@
     Updated data-training.py file
         Removed functions
             - _find_nearest_index
-    
+
+2.0.2
+    Updated scanner_local.py
+        Added functions
+            - build_training_data
+            - load_training_data
+            - accumulate_training_data
+            - build_model_from_accumulated_do
+            - save_knn_model
+            - load_knn_model
+            - classify_knn_model
+        Modified functions
+            - identify_cells
+    Updated data-training.py
+        Added functions
+            - _find_nearest_index
+        Modified functions
+            - scan_board
+    Updated screen.py
+        Added functions
+            - is_far_enough

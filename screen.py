@@ -26,3 +26,6 @@ def deduplicate_points(data, condition = None, min_distance = 10):
             result.append(element)
             grid.setdefault((gx,gy), []).append(element)
     return result
+
+def is_far_enough(d1,d2,min_distance=10):
+    return abs(d1[0]-d2[0]) > min_distance or abs(d1[1]-d2[1]) > min_distance
