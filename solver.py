@@ -72,8 +72,8 @@ class board():
             #iterates for all and groups results
             x, y = numbers[i][1], numbers[i][2]
             adj_count = int(__mine_count(x, y))
-            uncovered = __check_surrounding(x, y)
-            domains.append([(x, y), (adj_count, uncovered)])
+            covered = __check_surrounding(x, y)
+            domains.append([(x, y), (adj_count, covered)])
         return domains
     
     def __mine_location(self,x,y):
