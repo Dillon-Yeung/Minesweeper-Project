@@ -84,7 +84,7 @@ def accumulate_training_data(samples,labels,data_path=DEFAULT_TRAINING_DATA_PATH
     return all_samples,all_labels
 
 def build_model_from_accumulated_data(data_path=DEFAULT_TRAINING_DATA_PATH,model_output_path=DEFAULT_KNN_MODEL_PATH):
-    samples = labels = load_training_data(data_path)
+    samples, labels = load_training_data(data_path)
     if len(samples) == 0:
         raise ValueError("No accumulated training data found at {data_path}.")
     knn = train_knn_model(samples,labels)
