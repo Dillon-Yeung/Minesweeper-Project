@@ -156,3 +156,16 @@
     Updated data-training.py to data_training.py
     Updated screen.py
     Removed problems.txt
+
+3.2.0
+    Updated scanner_local.py
+        Removed functions
+            - save_knn_model
+            - load_knn_model
+            - build_model_from_accumulated_data
+        Modified functions
+            - identify_cells
+    Updated data-training.py
+        Modified functions
+            - scan_board
+    Updated solver.py

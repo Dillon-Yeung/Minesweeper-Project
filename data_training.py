@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import os
 import logging
-from scanner_local import identify_cells, TEMPLATE_LABEL_MAP, load_knn_model, classify_cell_knn
+from scanner_local import identify_cells, TEMPLATE_LABEL_MAP, classify_cell_knn, load_training_data, train_knn_model
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,20 +31,21 @@ def load_templates(compare_dir):
         templates.append(img)
     return tuple(templates)
 
-def scan_board(test_case,templates,rows=None, cols=None,knn_model_path=None,knn_max_distance=None):
+def scan_board(test_case,templates,rows=None, cols=None,data_training_path=None,knn_max_distance=None):
     _, cell_matches, img_gray, _ = identify_cells(test_case,templates)
 
     if not cell_matches:
         raise ValueError("No cells detected")
 
     knn = None
-    if knn_model_path is not None and os.path.exists(knn_model_path):
+    if data_training_path is not None and os.path.exists(data_training_path):
         try:
-            knn = load_knn_model(knn_model_path)
+            samples, labels = load_training_data(data_training_path)
+            knn = train_knn_model(samples,labels)
         except cv2.error:
             logger.warning(
-                "Could not load KNN model at %s; using template matching only.",
-                knn_model_path,
+                "Could not load training data at %s; using template matching only.",
+                data_training_path,
             )
             knn = None
 

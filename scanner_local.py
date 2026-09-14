@@ -5,10 +5,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_KNN_MODEL_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "knn_model.xml"
-)
-
 DEFAULT_TRAINING_DATA_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "knn_training_data.npz"
 )
@@ -82,26 +78,11 @@ def accumulate_training_data(samples,labels,data_path=DEFAULT_TRAINING_DATA_PATH
     )
     return all_samples,all_labels
 
-def build_model_from_accumulated_data(data_path=DEFAULT_TRAINING_DATA_PATH,model_output_path=DEFAULT_KNN_MODEL_PATH):
-    samples, labels = load_training_data(data_path)
-    if len(samples) == 0:
-        raise ValueError("No accumulated training data found at {data_path}.")
-    knn = train_knn_model(samples,labels)
-    save_knn_model(knn, model_output_path)
-    return knn
 
-def train_knn_model(samples,label):
+def train_knn_model(samples,labels):
     knn=cv2.ml.KNearest_create()
-    knn.train(samples,cv2.ml.ROW_SAMPLE,label)
+    knn.train(samples,cv2.ml.ROW_SAMPLE,labels)
     return knn
-
-def save_knn_model(knn,output_path=DEFAULT_KNN_MODEL_PATH):
-    knn.save(output_path)
-    logger.info("KNN model saved to %s",output_path)
-    return output_path
-
-def load_knn_model(model_path=DEFAULT_KNN_MODEL_PATH):
-    return cv2.ml.KNearest_load(model_path)
 
 def classify_cell_knn(knn,patch,k=3,max_distance=None):
     if knn is None:
@@ -142,7 +123,7 @@ def deduplicate_points(data, condition = None, min_distance = 10):
             grid.setdefault((gx,gy), []).append(element)
     return result
 
-def identify_cells(img,templates,threshold = 0.9,knn_model_path=DEFAULT_KNN_MODEL_PATH,training_data_path=DEFAULT_TRAINING_DATA_PATH):
+def identify_cells(img,templates,threshold = 0.9, training_data_path=DEFAULT_TRAINING_DATA_PATH):
     img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
     cell_matches = [] # stores x, y, index, confidence
@@ -188,12 +169,10 @@ def identify_cells(img,templates,threshold = 0.9,knn_model_path=DEFAULT_KNN_MODE
         len(cell_matches), cropped_board.shape[:2],
     )
 
-    if knn_model_path is not None:
+    if training_data_path is not None:
         samples, labels = build_training_data(cell_matches,img_gray, templates)
         if len(samples) > 0:
             all_samples,all_labels = accumulate_training_data(samples,labels,training_data_path)
-            knn = train_knn_model(all_samples,all_labels)
-            save_knn_model(knn,knn_model_path)
         else:
             logger.warning(
                 "No usable training samples produced from cell matches,"
