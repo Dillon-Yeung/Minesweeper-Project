@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import os
 import logging
-from screen import deduplicate_points
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +114,34 @@ def classify_cell_knn(knn,patch,k=3,max_distance=None):
         return None
     
     return int(results[0][0])
-    
+
+def deduplicate_points(data, condition = None, min_distance = 10):
+    #Filter list, keeps points only far enough away from existing
+    result = []
+
+    grid = {}
+    cell_size = min_distance+1
+
+    for element in data:
+        ex,ey = element[0],element[1]
+        gx,gy = ex//cell_size, ey//cell_size
+        close = False
+
+        for dx in range(-1,2):
+            if close:
+                break
+            for dy in range(-1,2):
+                key = (gx+dx,gy+dy)
+                if key in grid:
+                    for existing in grid[key]:
+                        if not (abs(ex-existing[0]) > min_distance or abs(ey-existing[1]) > min_distance):
+                            close = True
+                            break
+        if not close:
+            result.append(element)
+            grid.setdefault((gx,gy), []).append(element)
+    return result
+
 def identify_cells(img,templates,threshold = 0.9,knn_model_path=DEFAULT_KNN_MODEL_PATH,training_data_path=DEFAULT_TRAINING_DATA_PATH):
     img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
