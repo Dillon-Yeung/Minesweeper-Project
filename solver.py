@@ -195,13 +195,14 @@ if __name__ == "__main__":
             board_real = scan_board(real_img, templates, DEFAULT_TRAINING_DATA_PATH)
             print("Real Board:")
             print(board_real)
+            board1 = board(board_real)
+            board1.visualise_board()
+            print("")
+            board1.one_step_solve()
         else:
             print("Screenshot not found")
 
     except:
         print("Unidentified error")
 
-board1 = board(board_real)
-board1.visualise_board()
-print("")
-board1.one_step_solve()
+
