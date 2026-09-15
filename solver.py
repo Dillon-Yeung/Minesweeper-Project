@@ -117,7 +117,7 @@ class board():
         print(f"{collections.Counter(self.__board.flatten())[10] - collections.Counter(self.vboard.flatten())[10]} total mines identified")
         print(f"{collections.Counter(self.__board.flatten())[9] - collections.Counter(self.vboard.flatten())[9]} total safe spaces identified")
         print(f"{collections.Counter(self.vboard.flatten())[-1] - collections.Counter(self.__board.flatten())[-1]} total cells identified")
-        return board
+        return self.__board
     
     def visualise_board(self):
         # for testing only, will be altered later when GUI introduced
@@ -162,7 +162,7 @@ if __name__ == "__main__":
         test_img_small = cv2.imread(os.path.join(screenshots_dir, 'screenshot-23.png'))
         if test_img_small is not None:
             logger.info("=== Test: 2x2 board (screenshot-23) ===")
-            board_small = scan_board(test_img_small, templates, DEFAULT_TRAINING_DATA_PATH)
+            board_small = scan_board(test_img_small, templates, 2,2,DEFAULT_TRAINING_DATA_PATH)
             print("2x2 Board:")
             print(board_small)
         else:
@@ -171,7 +171,7 @@ if __name__ == "__main__":
         test_img_full = cv2.imread(os.path.join(screenshots_dir, 'screenshot-22.png'))
         if test_img_full is not None:
             logger.info("=== Test: 16x30 board (screenshot-22) ===")
-            board_full = scan_board(test_img_full, templates, DEFAULT_TRAINING_DATA_PATH)
+            board_full = scan_board(test_img_full, templates, 16,30,DEFAULT_TRAINING_DATA_PATH)
             print("\n16x30 Board:")
             print(board_full)
         else:
@@ -180,7 +180,7 @@ if __name__ == "__main__":
         test_img_med = cv2.imread(os.path.join(screenshots_dir, 'screenshot-4.png'))
         if test_img_med is not None:
             logger.info("=== Test: 16x16 board (screenshot-4) ===")
-            board_med = scan_board(test_img_med, templates, DEFAULT_TRAINING_DATA_PATH)
+            board_med = scan_board(test_img_med, templates, 16,16,DEFAULT_TRAINING_DATA_PATH)
             print("16x16 Board:")
             print(board_med)
         else:
@@ -192,7 +192,7 @@ if __name__ == "__main__":
         real_img = cv2.imread(os.path.join(screenshots_dir, f'screenshot-{a}.png'))
         if real_img is not None:
             logger.info("=== Not Test: board ===")
-            board_real = scan_board(real_img, templates, DEFAULT_TRAINING_DATA_PATH)
+            board_real = scan_board(real_img, templates, None,None,DEFAULT_TRAINING_DATA_PATH)
             print("Real Board:")
             print(board_real)
             board1 = board(board_real)
