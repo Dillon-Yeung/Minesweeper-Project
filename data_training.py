@@ -32,7 +32,7 @@ def load_templates(compare_dir):
     return tuple(templates)
 
 def scan_board(test_case,templates,rows=None, cols=None,data_training_path=None,knn_max_distance=None):
-    _, cell_matches, img_gray, _ = identify_cells(test_case,templates)
+    _, cell_matches, img_gray, _ = identify_cells(test_case,templates,None,training_data_path=None)
 
     if not cell_matches:
         raise ValueError("No cells detected")
