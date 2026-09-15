@@ -2,7 +2,7 @@ import numpy as np
 import colorama 
 import collections
 from data_training import *
-
+from screenshotter import take_screen
 DEFAULT_TRAINING_DATA_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "knn_training_data.npz"
 )
