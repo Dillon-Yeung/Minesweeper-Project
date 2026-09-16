@@ -1,11 +1,12 @@
 import numpy as np
-import colorama 
+import colorama
 import collections
 from data_training import *
 from screenshotter import take_screen
 DEFAULT_TRAINING_DATA_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "knn_training_data.npz"
 )
+
 
 #array = np.zeros((16,16),dtype=int)
 array = np.array([[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
@@ -25,13 +26,14 @@ array = np.array([[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
          [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
          [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]])
 
+
 class board():
     def __init__(self, board):
         self.__board = board
         self.vboard = board.copy()
         self.rows = len(board)
         self.cols = len(board[0])
-    
+   
     def __identify_num(self):
         # finds the coordinates of all the nums
         num = []
@@ -40,10 +42,10 @@ class board():
                 if self.vboard[i][j] > 0 and self.vboard[i][j] < 9:
                     num.append((int(self.vboard[i][j]),i, j))
         return num
-    
+   
     def __identify_domains(self,numbers):
         domains = []
-        
+       
         def __check_surrounding(x,y):
             #identifies domain size for each number
             count = 0
@@ -55,7 +57,7 @@ class board():
                     if 0 <= newx < self.rows and 0 <= newy < self.cols and self.__board[newx][newy] == -1:
                         count += 1
             return count
-        
+       
         def __mine_count(x,y):
             #if mine is present decreases domain size
             count = self.__board[x][y]
@@ -67,7 +69,7 @@ class board():
                     if 0 <= newx < len(self.__board) and 0 <= newy < len(self.__board[0]) and self.__board[newx][newy] == 10:
                         count -= 1
             return count
-        
+       
         for i in range(len(numbers)):
             #iterates for all and groups results
             x, y = numbers[i][1], numbers[i][2]
@@ -75,7 +77,7 @@ class board():
             covered = __check_surrounding(x, y)
             domains.append([(x, y), (adj_count, covered)])
         return domains
-    
+   
     def __mine_location(self,x,y):
         #if number == domain size, identifies as mine
         change = False
@@ -86,6 +88,7 @@ class board():
                     self.__board[newx][newy] = 10
                     change = True
         return change
+
 
     def __safe_location(self,x,y):
         #if mine count == number and domain size != mine count, identifies rest as safe
@@ -98,6 +101,7 @@ class board():
                     change = True
         return change
 
+
     def __guaranteed_spaces(self,domain):
         #identifies mines and safes
         changes = False
@@ -107,7 +111,7 @@ class board():
             elif domain[i][1][0] == 0:
                 changes = changes or self.__safe_location(*domain[i][0])
         return changes
-    
+   
     def one_step_solve(self):
         changed = True
         while changed is True:
@@ -118,7 +122,7 @@ class board():
         print(f"{collections.Counter(self.__board.flatten())[9] - collections.Counter(self.vboard.flatten())[9]} total safe spaces identified")
         print(f"{collections.Counter(self.vboard.flatten())[-1] - collections.Counter(self.__board.flatten())[-1]} total cells identified")
         return self.__board
-    
+   
     def visualise_board(self):
         # for testing only, will be altered later when GUI introduced
         for row in self.__board:
@@ -149,60 +153,47 @@ class board():
                     print(colorama.Back.WHITE + colorama.Fore.RED + "F", end = " ")
             print(colorama.Style.RESET_ALL, end="\n")
 
+
 #figure out how to identify for prob calc
+
 
 if __name__ == "__main__":
     _base = os.path.dirname(os.path.abspath(__file__))
 
+
     try:
         compare_dir = os.path.join(_base, 'compare')
         screenshots_dir = os.path.join(_base, 'screenshots')
+
+
+        if not os.path.isdir(compare_dir):
+            raise FileNotFoundError(f"Missing templates directory: {compare_dir}")
+        if not os.path.isdir(screenshots_dir):
+            raise FileNotFoundError(f"Missing screenshots directory: {screenshots_dir}")
+
+
         templates = load_templates(compare_dir)
-
-        test_img_small = cv2.imread(os.path.join(screenshots_dir, 'screenshot-23.png'))
-        if test_img_small is not None:
-            logger.info("=== Test: 2x2 board (screenshot-23) ===")
-            board_small = scan_board(test_img_small, templates, 2,2,DEFAULT_TRAINING_DATA_PATH)
-            print("2x2 Board:")
-            print(board_small)
-        else:
-            print("screenshot-23.png not found")
-
-        test_img_full = cv2.imread(os.path.join(screenshots_dir, 'screenshot-22.png'))
-        if test_img_full is not None:
-            logger.info("=== Test: 16x30 board (screenshot-22) ===")
-            board_full = scan_board(test_img_full, templates, 16,30,DEFAULT_TRAINING_DATA_PATH)
-            print("\n16x30 Board:")
-            print(board_full)
-        else:
-            print("screenshot-22.png not found")
-
-        test_img_med = cv2.imread(os.path.join(screenshots_dir, 'screenshot-4.png'))
-        if test_img_med is not None:
-            logger.info("=== Test: 16x16 board (screenshot-4) ===")
-            board_med = scan_board(test_img_med, templates, 16,16,DEFAULT_TRAINING_DATA_PATH)
-            print("16x16 Board:")
-            print(board_med)
-        else:
-            print("screenshot-4.png not found")
+        
         a = 0
-        while os.path.exists(f'{os.getcwd()}/screenshots/screenshot-{a}.png'):
-            a+=1
+        while os.path.exists(os.path.join(screenshots_dir, f'screenshot-{a}.png')):
+            a += 1
         take_screen(a)
         real_img = cv2.imread(os.path.join(screenshots_dir, f'screenshot-{a}.png'))
+
         if real_img is not None:
             logger.info("=== Not Test: board ===")
-            board_real = scan_board(real_img, templates, None,None,DEFAULT_TRAINING_DATA_PATH)
+            board_real = scan_board(real_img, templates,16,30,None)
             print("Real Board:")
-            print(board_real)
             board1 = board(board_real)
             board1.visualise_board()
             print("")
             board1.one_step_solve()
         else:
-            print("Screenshot not found")
-
-    except:
-        print("Unidentified error")
+            print(f"Screenshot not found at {os.path.join(screenshots_dir, f'screenshot-{a}.png')}")
+        
 
 
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        print(f"Error in solver main block: {exc}")
