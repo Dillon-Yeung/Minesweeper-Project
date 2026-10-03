@@ -23,21 +23,32 @@ TEMPLATE_LABEL_MAP = {
     11: 10,  # flag 
 }
 
-def build_training_data(cell_matches, img_gray, templates):
+def cell_features(img_rgb,x,y,w,h,margin=0.22,size=16):
+    patch = img_rgb[y:y+h,x:x+w]
+    pad_h,pad_w = h-patch.shape[0],w-patch.shape[1]
+    if pad_h > 0 or pad_w > 0:
+        patch = np.pad(patch, ((0,pad_h),(0,pad_w),(0,0)),mode="edge")
+
+    margin_y,margin_x = int(h*margin), int(w*margin)
+    core = patch[margin_y:h-margin_y,margin_x:w-margin_x]
+    small = cv2.resize(core, (size,size),interpolation=cv2.INTER_AREA)
+
+    colour = small.astype(np.float32).flatten() / 255.0
+
+    hsv = cv2.cvtColor(small,cv2.COLOR_BGR2HSV)
+    mask = (hsv[...,1]>70) & (hsv[...,2]>90)
+    hist = np.histogram(hsv[..., 0][mask], bins=12, range=(0, 180))[0].astype(np.float32)
+    hist = hist / (hist.sum() + 1e-6)
+    return np.concatenate([colour,hist*4.0])
+
+def build_training_data(cell_matches, img_rgb, templates):
     rep_h, rep_w = templates[0].shape
 
     samples = []
     labels = []
 
     for x, y, template_index, confidence in cell_matches:
-        patch = img_gray[y:y + rep_h, x:x + rep_w]
-
-        pad_h = rep_h - patch.shape[0]
-        pad_w = rep_w - patch.shape[1]
-        if pad_h > 0 or pad_w > 0:
-            if patch.shape[0] == 0 or patch.shape[1] == 0:
-                continue
-            patch = np.pad(patch, ((0,pad_h),(0,pad_w)),mode = 'edge')
+        patch = cell_features(img_rgb,x,y,rep_w,rep_h)
 
         samples.append(patch.flatten().astype(np.float32))
         labels.append(template_index)
@@ -84,7 +95,7 @@ def train_knn_model(samples,labels):
     knn.train(samples,cv2.ml.ROW_SAMPLE,labels)
     return knn
 
-def classify_cell_knn(knn,patch,k=3,max_distance=None):
+def classify_cell_knn(knn,patch,k=5,max_distance=None):
     if knn is None:
         return None
 
@@ -93,10 +104,12 @@ def classify_cell_knn(knn,patch,k=3,max_distance=None):
 
     if max_distance is not None and float(dist[0][0]) > max_distance:
         return None
-    
-    return int(results[0][0])
+    votes = {}
+    for label, distnce in zip(neighbours[0], dist[0]):
+        votes[int(label)] = votes.get(int(label), 0) + 1.0 / (distnce + 1e-6)
+    return max(votes, key=votes.get)
 
-def deduplicate_points(data, condition = None, min_distance = 10):
+def deduplicate_points(data, condition = None,  min_distance = 10):
     #Filter list, keeps points only far enough away from existing
     result = []
 
@@ -123,7 +136,7 @@ def deduplicate_points(data, condition = None, min_distance = 10):
             grid.setdefault((gx,gy), []).append(element)
     return result
 
-def identify_cells(img,templates,threshold = 0.9, training_data_path=DEFAULT_TRAINING_DATA_PATH):
+def identify_cells(img,templates,threshold = 0.95, training_data_path=DEFAULT_TRAINING_DATA_PATH):
     img_gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
     cell_matches = [] # stores x, y, index, confidence
@@ -170,7 +183,7 @@ def identify_cells(img,templates,threshold = 0.9, training_data_path=DEFAULT_TRA
     )
 
     if training_data_path is not None:
-        samples, labels = build_training_data(cell_matches,img_gray, templates)
+        samples, labels = build_training_data(cell_matches,img, templates)
         if len(samples) > 0:
             all_samples,all_labels = accumulate_training_data(samples,labels,training_data_path)
         else:

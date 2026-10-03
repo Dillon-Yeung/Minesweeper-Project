@@ -169,3 +169,10 @@
         Modified functions
             - scan_board
     Updated solver.py
+
+3.3.0
+    Updated scanner_local.py
+        Added functions
+            - cell_features
+        Modified functions
+            - classify_cell_knn
