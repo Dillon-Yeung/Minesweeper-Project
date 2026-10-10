@@ -176,3 +176,8 @@
             - cell_features
         Modified functions
             - classify_cell_knn
+
+4.0.0
+    Updated prob.py
+        Added functions
+            - prob_calc

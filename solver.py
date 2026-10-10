@@ -3,29 +3,13 @@ import colorama
 import collections
 from data_training import *
 from screenshotter import take_screen
+from prob import prob_calc
+
 DEFAULT_TRAINING_DATA_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "knn_training_data.npz"
 )
 
-
-#array = np.zeros((16,16),dtype=int)
-array = np.array([[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,1,1,1,1,1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,1,0,0,0,1,1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,1,0,1,1,1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,1,0,1,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,1,1,2,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
-         [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]])
-
+dirs = [(dx,dy) for dx in (-1,0,1) for dy in (-1,0,1) if (dx,dy) != (0,0)]
 
 class board():
     def __init__(self, board):
@@ -49,25 +33,19 @@ class board():
         def __check_surrounding(x,y):
             #identifies domain size for each number
             count = 0
-            for diffx in [-1,0,1]:
-                for diffy in [-1,0,1]:
-                    if diffx == 0 and diffy == 0:
-                        continue
-                    newx, newy = x+diffx, y+diffy
-                    if 0 <= newx < self.rows and 0 <= newy < self.cols and self.__board[newx][newy] == -1:
+            for dx,dy in dirs:
+                newx,newy=x+dx,y+dy
+                if 0 <= newx < self.rows and 0 <= newy < self.cols and self.__board[newx][newy] == -1:
                         count += 1
             return count
        
         def __mine_count(x,y):
             #if mine is present decreases domain size
             count = self.__board[x][y]
-            for diffx in [-1, 0, 1]:
-                for diffy in [-1, 0, 1]:
-                    if diffx == 0 and diffy == 0:
-                        continue
-                    newx, newy = x + diffx, y + diffy
-                    if 0 <= newx < len(self.__board) and 0 <= newy < len(self.__board[0]) and self.__board[newx][newy] == 10:
-                        count -= 1
+            for dx,dy in dirs:
+                newx,newy=x+dx,y+dy
+                if 0 <= newx < len(self.__board) and 0 <= newy < len(self.__board[0]) and self.__board[newx][newy] == 10:
+                    count -= 1
             return count
        
         for i in range(len(numbers)):
@@ -81,24 +59,22 @@ class board():
     def __mine_location(self,x,y):
         #if number == domain size, identifies as mine
         change = False
-        for diffx in [-1,0,1]:
-            for diffy in [-1,0,1]:
-                newx, newy = x+diffx, y+diffy
-                if 0<= newx < len(self.__board) and 0 <= newy < len(self.__board[0]) and self.__board[newx][newy] == -1:
-                    self.__board[newx][newy] = 10
-                    change = True
+        for dx,dy in dirs:
+            newx,newy=x+dx,y+dy
+            if 0<= newx < len(self.__board) and 0 <= newy < len(self.__board[0]) and self.__board[newx][newy] == -1:
+                self.__board[newx][newy] = 10
+                change = True
         return change
 
 
     def __safe_location(self,x,y):
         #if mine count == number and domain size != mine count, identifies rest as safe
         change = False
-        for diffx in [-1,0,1]:
-            for diffy in [-1,0,1]:
-                newx, newy = x+diffx, y+diffy
-                if 0<= newx < self.rows and 0 <= newy < self.cols and self.__board[newx][newy] == -1:
-                    self.__board[newx][newy] = 9
-                    change = True
+        for dx,dy in dirs:
+            newx,newy=x+dx,y+dy
+            if 0<= newx < self.rows and 0 <= newy < self.cols and self.__board[newx][newy] == -1:
+                self.__board[newx][newy] = 9
+                change = True
         return change
 
 
@@ -111,7 +87,7 @@ class board():
             elif domain[i][1][0] == 0:
                 changes = changes or self.__safe_location(*domain[i][0])
         return changes
-   
+    
     def one_step_solve(self):
         changed = True
         while changed is True:
@@ -122,7 +98,9 @@ class board():
         print(f"{collections.Counter(self.__board.flatten())[9] - collections.Counter(self.vboard.flatten())[9]} total safe spaces identified")
         print(f"{collections.Counter(self.vboard.flatten())[-1] - collections.Counter(self.__board.flatten())[-1]} total cells identified")
         return self.__board
-   
+
+    def calc_prob(self):
+        print(prob_calc(self.__board))
     def visualise_board(self):
         # for testing only, will be altered later when GUI introduced
         for row in self.__board:
