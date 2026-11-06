@@ -3,6 +3,8 @@ import keyboard
 import os
 
 def take_screen(num):
+    os.system('cls')
+    print("Waiting for screenshot... ")
     keyboard.wait('enter')
     im1 = pyautogui.screenshot()
     base_dir = os.path.dirname(os.path.abspath(__file__))
