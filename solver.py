@@ -43,7 +43,7 @@ class board():
             count = self.__board[x][y]
             for dx,dy in dirs:
                 newx,newy=x+dx,y+dy
-                if 0 <= newx < len(self.__board) and 0 <= newy < len(self.__board[0]) and self.__board[newx][newy] == 10:
+                if 0 <= newx < len(self.__board) and 0 <= newy < len(self.__board[0]) and self.__board[newx][newy] == 10 or 0 <= newx < len(self.__board) and 0 <= newy < len(self.__board[0]) and self.__board[newx][newy] == 11:
                     count -= 1
             return count
        
@@ -61,7 +61,7 @@ class board():
         for dx,dy in dirs:
             newx,newy=x+dx,y+dy
             if 0<= newx < len(self.__board) and 0 <= newy < len(self.__board[0]) and self.__board[newx][newy] == -1:
-                self.__board[newx][newy] = 10
+                self.__board[newx][newy] = 11
                 change = True
         return change
 
@@ -72,7 +72,7 @@ class board():
         for dx,dy in dirs:
             newx,newy=x+dx,y+dy
             if 0<= newx < self.rows and 0 <= newy < self.cols and self.__board[newx][newy] == -1:
-                self.__board[newx][newy] = 9
+                self.__board[newx][newy] = 99
                 change = True
         return change
 
@@ -93,15 +93,12 @@ class board():
             domains = self.__identify_domains(self.__identify_num())
             changed = self.__guaranteed_spaces(domains)
         self.visualise_board()
-        print(f"{collections.Counter(self.__board.flatten())[10] - collections.Counter(self.vboard.flatten())[10]} total mines identified")
-        print(f"{collections.Counter(self.__board.flatten())[9] - collections.Counter(self.vboard.flatten())[9]} total safe spaces identified")
+        print(f"{collections.Counter(self.__board.flatten())[11]} total mines identified")
+        print(f"{collections.Counter(self.__board.flatten())[99]} total safe spaces identified")
         print(f"{collections.Counter(self.vboard.flatten())[-1] - collections.Counter(self.__board.flatten())[-1]} total cells identified")
         return self.__board
 
-    def calc_prob(self):
-        print(prob_calc(self.__board))
     def visualise_board(self):
-        # for testing only, will be altered later when GUI introduced
         for row in self.__board:
             for cell in row:
                 if cell == -1:
@@ -126,12 +123,13 @@ class board():
                     print(colorama.Back.WHITE + colorama.Fore.BLACK + "8", end=" ")
                 elif cell == 9:
                     print(colorama.Back.WHITE + colorama.Fore.BLACK + "S", end = " ")
+                elif cell == 99:
+                    print(colorama.Back.CYAN + colorama.Fore.BLACK + "S", end = " ")
                 elif cell == 10:
                     print(colorama.Back.WHITE + colorama.Fore.RED + "F", end = " ")
+                elif cell == 11:
+                    print(colorama.Back.GREEN + colorama.Fore.RED + "F", end = " ")
             print(colorama.Style.RESET_ALL, end="\n")
-
-
-#figure out how to identify for prob calc
 
 
 if __name__ == "__main__":
@@ -156,10 +154,9 @@ if __name__ == "__main__":
             a += 1
         take_screen(a)
         real_img = cv2.imread(os.path.join(screenshots_dir, f'screenshot-{a}.png'))
-
         if real_img is not None:
-            logger.info("=== Not Test: board ===")
-            board_real = scan_board(real_img, templates,16,30,None)
+            logger.info(f"=== Test: Board #{a} ===")
+            board_real = scan_board(real_img, templates,None,None,None)
             print("Real Board:")
             board1 = board(board_real)
             board1.visualise_board()
